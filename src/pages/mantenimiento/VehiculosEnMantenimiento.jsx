@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AdminLayout from '../../components/plantillas/AdminLayout';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import AdminLayout from "../../components/plantillas/AdminLayout";
 
 const VehiculosEnMantenimiento = () => {
   const [vehiculos, setVehiculos] = useState([]);
-  const [searchId, setSearchId] = useState('');
+  const [searchId, setSearchId] = useState("");
   const [filteredVehiculos, setFilteredVehiculos] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVehiculosEnMantenimiento = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/vehiculo-mantenimiento/');
+        const response = await axios.get(
+          "http://localhost:8000/api/vehiculo-mantenimiento/"
+        );
         setVehiculos(response.data);
       } catch (error) {
         console.error(error);
@@ -22,7 +27,9 @@ const VehiculosEnMantenimiento = () => {
 
   useEffect(() => {
     setFilteredVehiculos(
-      vehiculos.filter((vehiculo) => vehiculo.vehiculo_mantenimiento_id.toString().includes(searchId))
+      vehiculos.filter((vehiculo) =>
+        vehiculo.vehiculo_mantenimiento_id.toString().includes(searchId)
+      )
     );
   }, [searchId, vehiculos]);
 
@@ -30,26 +37,29 @@ const VehiculosEnMantenimiento = () => {
     setSearchId(e.target.value);
   };
 
-  const handleDelete = async (id) => {
+  const handleEliminar = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/vehiculo-mantenimiento/${id}`);
-      setVehiculos((prevVehiculos) => prevVehiculos.filter((vehiculo) => vehiculo.vehiculo_mantenimiento_id !== id));
+      await axios.delete(
+        `http://localhost:8000/api/vehiculo-mantenimiento/${id}/eliminar_mantenimiento/`
+      );
+      setVehiculos((prevVehiculos) =>
+        prevVehiculos.filter(
+          (vehiculo) => vehiculo.vehiculo_mantenimiento_id !== id
+        )
+      );
     } catch (error) {
       console.error(error);
     }
   };
-
-  const handleEdit = (id) => {
-    // Redirige a la página de edición con el ID del vehículo en la URL
-  };
-  
 
   return (
     <AdminLayout>
       <div>
         <h1>Vehículos en Mantenimiento</h1>
         <div className="mb-3">
-          <label htmlFor="searchId" className="form-label">Buscar por ID:</label>
+          <label htmlFor="searchId" className="form-label">
+            Buscar por ID:
+          </label>
           <input
             type="text"
             className="form-control"
@@ -82,13 +92,37 @@ const VehiculosEnMantenimiento = () => {
                 <td>{vehiculo.tipo_mantenimiento}</td>
                 <td>{vehiculo.vehiculo}</td>
                 <td>
-                  <button className="btn btn-danger" onClick={() => handleDelete(vehiculo.vehiculo_mantenimiento_id)}>Eliminar</button>
-                  <button className="btn btn-primary" onClick={() => handleEdit(vehiculo.vehiculo_mantenimiento_id)}>Modificar</button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      handleEliminar(vehiculo.vehiculo_mantenimiento_id)
+                    }
+                  >
+                    Eliminar
+                  </button>
+                  <Link
+                    to={`/mantenimiento/editar/${vehiculo.vehiculo_mantenimiento_id}`}
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleEditar(vehiculo.vehiculo_mantenimiento_id)
+                    }
+                  >
+                    Editar
+                  </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <button type="button" className="btn btn-secondary">
+          <Link
+            to="/mantenimiento"
+            className="text-white"
+            style={{ textDecoration: "none" }}
+          >
+            Regresar
+          </Link>
+        </button>
       </div>
     </AdminLayout>
   );
